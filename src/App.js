@@ -1,4 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, {
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 
 // conponents
 import Hello from "./chap1/Hello";
@@ -8,57 +13,7 @@ import UserList from "./chap1/UserList";
 import CreateUser from "./chap1/CreateUser";
 
 function App() {
-  // for create user
-  const [inputs, setInputs] = useState({
-    username: "",
-    email: "",
-  });
-
-  const { username, email } = inputs;
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setInputs({
-      ...inputs,
-      [name]: value,
-    });
-  };
-
-  const nextId = useRef(5);
-  const onCreate = () => {
-    // add user
-    const user = {
-      id: nextId.current,
-      username,
-      email,
-    };
-    setUsers([...users, user]);
-
-    // init input values
-    setInputs({
-      username: "",
-      email: "",
-    });
-
-    // increase index
-    nextId.current += 1;
-  };
-
-  const onRemove = (id) => {
-    // delete user
-    setUsers(users.filter((user) => user.id !== id));
-  };
-
-  const onToggle = (id) => {
-    console.log("asdf");
-    setUsers(
-      users.map((user) =>
-        user.id === id
-          ? { ...user, active: !user.active }
-          : user
-      )
-    );
-  };
-
+  // initial data
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -86,6 +41,70 @@ function App() {
     },
   ]);
 
+  // for create user
+  const [inputs, setInputs] = useState({
+    username: "",
+    email: "",
+  });
+
+  const { username, email } = inputs;
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
+  const nextId = useRef(5);
+  const onCreate = useCallback(() => {
+    // add user
+    const user = {
+      id: nextId.current,
+      username,
+      email,
+    };
+    setUsers([...users, user]);
+
+    // init input values
+    setInputs({
+      username: "",
+      email: "",
+    });
+
+    // increase index
+    nextId.current += 1;
+  }, [users, username, email]);
+
+  const onRemove = useCallback(
+    (id) => {
+      // delete user
+      setUsers(users.filter((user) => user.id !== id));
+    },
+    [users]
+  );
+
+  const onToggle = useCallback(
+    (id) => {
+      setUsers(
+        users.map((user) =>
+          user.id === id
+            ? { ...user, active: !user.active }
+            : user
+        )
+      );
+    },
+    [users]
+  );
+
+  const countActiveUsers = (users) => {
+    return users.filter((user) => user.active).length;
+  };
+  const nActive = useMemo(
+    () => countActiveUsers(users),
+    [users]
+  );
+
   return (
     <>
       <Wrapper>
@@ -107,6 +126,7 @@ function App() {
         onRemove={onRemove}
         onToggle={onToggle}
       />
+      <div>active user : {nActive}</div>
     </>
   );
 }
