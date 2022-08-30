@@ -3,6 +3,7 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  useReducer,
 } from "react";
 
 // conponents
@@ -12,105 +13,124 @@ import Wrapper from "./chap1/wrapper";
 import UserList from "./chap1/UserList";
 import CreateUser from "./chap1/CreateUser";
 
-function App() {
-  // initial data
-  const [users, setUsers] = useState([
+function countActiveUsers(users) {
+  return users.filter((user) => user.active).length;
+}
+
+const initialState = {
+  inputs: {
+    username: "",
+    email: "",
+  },
+  users: [
     {
       id: 1,
-      username: "zxcv",
-      email: "zxcv@zxcv1.com",
+      username: "velopert",
+      email: "public.velopert@gmail.com",
       active: true,
     },
     {
       id: 2,
-      username: "zxcv2",
-      email: "zxcv@zxcv2.com",
+      username: "tester",
+      email: "tester@example.com",
       active: false,
     },
     {
       id: 3,
-      username: "zxcv3",
-      email: "zxcv@zxcv3.com",
+      username: "liz",
+      email: "liz@example.com",
       active: false,
     },
-    {
-      id: 4,
-      username: "zxcv4",
-      email: "zxcv@zxcv4.com",
-      active: false,
-    },
-  ]);
+  ],
+};
 
-  // for create user
-  const [inputs, setInputs] = useState({
-    username: "",
-    email: "",
-  });
+function reducer(state, action) {
+  switch (action.type) {
+    case "CHANGE_INPUT":
+      return {
+        ...state,
+        inputs: {
+          ...state.inputs,
+          [action.name]: action.value,
+        },
+      };
+    case "CREATE_USER":
+      return {
+        inputs: initialState.inputs,
+        users: state.users.concat(action.user),
+      };
+    case "TOGGLE_USER":
+      return {
+        ...state,
+        users: state.users.map((user) =>
+          user.id === action.id
+            ? { ...user, active: !user.active }
+            : user
+        ),
+      };
+    case "REMOVE_USER":
+      return {
+        ...state,
+        users: state.users.filter(
+          (user) => user.id !== action.id
+        ),
+      };
+    default:
+      return state;
+  }
+}
 
-  const { username, email } = inputs;
-  const onChange = (e) => {
+function App() {
+  const [state, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
+  const nextId = useRef(4);
+  const { users } = state;
+  const { username, email } = state.inputs;
+
+  const onChange = useCallback((e) => {
     const { name, value } = e.target;
-    setInputs({
-      ...inputs,
-      [name]: value,
+    dispatch({
+      type: "CHANGE_INPUT",
+      name,
+      value,
     });
-  };
+  }, []);
 
-  const nextId = useRef(5);
   const onCreate = useCallback(() => {
-    // add user
-    const user = {
-      id: nextId.current,
-      username,
-      email,
-    };
-    setUsers((users) => users.concat(user));
-
-    // init input values
-    setInputs({
-      username: "",
-      email: "",
+    dispatch({
+      type: "CREATE_USER",
+      user: {
+        id: nextId.current,
+        username,
+        email,
+      },
     });
-
-    // increase index
     nextId.current += 1;
   }, [username, email]);
 
-  const onRemove = useCallback((id) => {
-    // delete user
-    setUsers((users) =>
-      users.filter((user) => user.id !== id)
-    );
-  }, []);
-
   const onToggle = useCallback((id) => {
-    setUsers((users) =>
-      users.map((user) =>
-        user.id === id
-          ? { ...user, active: !user.active }
-          : user
-      )
-    );
+    dispatch({
+      type: "TOGGLE_USER",
+      id,
+    });
   }, []);
 
-  const countActiveUsers = (users) => {
-    return users.filter((user) => user.active).length;
-  };
-  const nActive = useMemo(
+  const onRemove = useCallback((id) => {
+    dispatch({
+      type: "REMOVE_USER",
+      id,
+    });
+  }, []);
+
+  const count = useMemo(
     () => countActiveUsers(users),
     [users]
   );
-
   return (
     <>
-      <Wrapper>
-        <Hello name="react" />
-        <Hello name="zzzzz" />
-      </Wrapper>
-      <InputSample />
-
-      <hr></hr>
-
       <CreateUser
         username={username}
         email={email}
@@ -119,10 +139,10 @@ function App() {
       />
       <UserList
         users={users}
-        onRemove={onRemove}
         onToggle={onToggle}
+        onRemove={onRemove}
       />
-      <div>active user : {nActive}</div>
+      <div>활성사용자 수 : {count}</div>
     </>
   );
 }
