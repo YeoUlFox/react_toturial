@@ -64,7 +64,7 @@ function App() {
       username,
       email,
     };
-    setUsers([...users, user]);
+    setUsers((users) => users.concat(user));
 
     // init input values
     setInputs({
@@ -74,28 +74,24 @@ function App() {
 
     // increase index
     nextId.current += 1;
-  }, [users, username, email]);
+  }, [username, email]);
 
-  const onRemove = useCallback(
-    (id) => {
-      // delete user
-      setUsers(users.filter((user) => user.id !== id));
-    },
-    [users]
-  );
+  const onRemove = useCallback((id) => {
+    // delete user
+    setUsers((users) =>
+      users.filter((user) => user.id !== id)
+    );
+  }, []);
 
-  const onToggle = useCallback(
-    (id) => {
-      setUsers(
-        users.map((user) =>
-          user.id === id
-            ? { ...user, active: !user.active }
-            : user
-        )
-      );
-    },
-    [users]
-  );
+  const onToggle = useCallback((id) => {
+    setUsers((users) =>
+      users.map((user) =>
+        user.id === id
+          ? { ...user, active: !user.active }
+          : user
+      )
+    );
+  }, []);
 
   const countActiveUsers = (users) => {
     return users.filter((user) => user.active).length;
