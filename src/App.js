@@ -41,6 +41,8 @@ const initialState = {
   ],
 };
 
+export const UserDispatch = React.createContext(null);
+
 function reducer(state, action) {
   switch (action.type) {
     case "CHANGE_INPUT":
@@ -123,7 +125,7 @@ function App() {
     [users]
   );
   return (
-    <>
+    <UserDispatch.Provider value={dispatch}>
       <CreateUser
         username={username}
         email={email}
@@ -136,7 +138,7 @@ function App() {
         onRemove={onRemove}
       />
       <div>활성사용자 수 : {count}</div>
-    </>
+    </UserDispatch.Provider>
   );
 }
 
