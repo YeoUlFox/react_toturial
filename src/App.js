@@ -5,6 +5,8 @@ import React, {
   useReducer,
 } from "react";
 
+import produce from "immer";
+
 // conponents
 import UserList from "./chap1/UserList";
 import CreateUser from "./chap1/CreateUser";
@@ -22,20 +24,20 @@ const initialState = {
   users: [
     {
       id: 1,
-      username: "velopert",
-      email: "public.velopert@gmail.com",
+      username: "zxcv",
+      email: "zxcv.zxcv@gmail.com",
       active: true,
     },
     {
       id: 2,
-      username: "tester",
-      email: "tester@example.com",
+      username: "zxcv2",
+      email: "zxcv2@example.com",
       active: false,
     },
     {
       id: 3,
-      username: "liz",
-      email: "liz@example.com",
+      username: "zxcv3",
+      email: "zxcv3@example.com",
       active: false,
     },
   ],
@@ -59,14 +61,12 @@ function reducer(state, action) {
         users: state.users.concat(action.user),
       };
     case "TOGGLE_USER":
-      return {
-        ...state,
-        users: state.users.map((user) =>
-          user.id === action.id
-            ? { ...user, active: !user.active }
-            : user
-        ),
-      };
+      return produce(state, (draft) => {
+        const user = draft.users.find(
+          (user) => user.id === action.id
+        );
+        user.active = !user.active;
+      });
     case "REMOVE_USER":
       return {
         ...state,
