@@ -14,6 +14,9 @@ import CreateUser from "./chap1/CreateUser";
 import useInputs from "./hooks/userInputs";
 import Button from "./chap2/Button";
 import CheckBox from "./chap2/CheckBox";
+import Circle from "./chap2/Circle";
+import Button2, { AppBlock } from "./chap2/Button2";
+import { ThemeProvider } from "styled-components";
 
 function countActiveUsers(users) {
   return users.filter((user) => user.active).length;
@@ -160,6 +163,23 @@ function App() {
       <CheckBox onChange={onCheckBoxChange} checked={check}>
         체크체크
       </CheckBox>
+
+      <hr></hr>
+
+      <ThemeProvider
+        theme={{
+          palette: {
+            blue: "#228be6",
+            gray: "#495057",
+            pink: "#f06595",
+          },
+        }}
+      >
+        <AppBlock>
+          <Circle color="blue" huge />
+          <Button2>버어튼</Button2>
+        </AppBlock>
+      </ThemeProvider>
     </>
   );
 }
