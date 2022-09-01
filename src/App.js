@@ -1,4 +1,5 @@
 import React, {
+  useState,
   useRef,
   useMemo,
   useCallback,
@@ -11,6 +12,8 @@ import produce from "immer";
 import UserList from "./chap1/UserList";
 import CreateUser from "./chap1/CreateUser";
 import useInputs from "./hooks/userInputs";
+import Button from "./chap2/Button";
+import CheckBox from "./chap2/CheckBox";
 
 function countActiveUsers(users) {
   return users.filter((user) => user.active).length;
@@ -124,21 +127,40 @@ function App() {
     () => countActiveUsers(users),
     [users]
   );
+
+  const [check, setCheck] = useState(false);
+  const onCheckBoxChange = (e) => {
+    setCheck(e.target.checked);
+  };
+
   return (
-    <UserDispatch.Provider value={dispatch}>
-      <CreateUser
-        username={username}
-        email={email}
-        onChange={onChange}
-        onCreate={onCreate}
-      />
-      <UserList
-        users={users}
-        onToggle={onToggle}
-        onRemove={onRemove}
-      />
-      <div>활성사용자 수 : {count}</div>
-    </UserDispatch.Provider>
+    <>
+      <UserDispatch.Provider value={dispatch}>
+        <CreateUser
+          username={username}
+          email={email}
+          onChange={onChange}
+          onCreate={onCreate}
+        />
+        <UserList
+          users={users}
+          onToggle={onToggle}
+          onRemove={onRemove}
+        />
+        <div>활성사용자 수 : {count}</div>
+      </UserDispatch.Provider>
+
+      <hr></hr>
+
+      {/* Chap2 */}
+      <Button size="large">Btn1</Button>
+      <Button>Btn2</Button>
+      <Button size="small">Btn3</Button>
+
+      <CheckBox onChange={onCheckBoxChange} checked={check}>
+        체크체크
+      </CheckBox>
+    </>
   );
 }
 
